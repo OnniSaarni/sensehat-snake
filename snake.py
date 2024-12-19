@@ -3,20 +3,124 @@ import random
 import time
 import math
 import threading
+import pyfiglet
 
-def save_highscore(score):
-    try:
-        with open("highscore.txt", "r") as file:
-            highscore = int(file.read())
-    except:
-        highscore = 0
+def save_highscore(name,score):
+    print(name, score)
+    # 
+    # WIP Implement saving to server
+    #
 
-    if score > highscore:
-        with open("highscore.txt", "w") as file:
-            file.write(str(score))
-    # Make a request to the webserver to save the highscore
-    # data = {"highscore": score}
-    # response = requests.post("http://
+def set_char(chosenChar,selectedColor):
+    global matrix
+
+    startPos = [4,6]
+
+    getChar = pyfiglet.figlet_format(chr(chosenChar+97).upper(), font = "3x5" ).split(" \n")
+    getChar.pop(0)
+    getChar.pop(5)
+    for i in range(6):
+        getChar[i-1] = getChar[i-1].replace(" ", "0").replace("#", str(selectedColor))
+    for line in reversed(getChar):
+        for char in list(line):
+            matrix[startPos[0]][startPos[1]] = int(char)
+            startPos = [startPos[0] + 1, startPos[1]]
+        startPos = [startPos[0] - 3, startPos[1] - 1]
+
+def displayMatrix2():
+    global matrix
+    for i in range(8):
+        for j in range(8):
+            if [i,j] == [2,3]:
+                sense.set_pixel(i, j, (255, 0, 0))
+                continue
+            if matrix[i][j] == 0:
+                sense.set_pixel(i, j, (0, 0, 0)) 
+            if matrix[i][j] == 1:
+                sense.set_pixel(i, j, (0, 255, 0))
+            if matrix[i][j] == 3:
+                sense.set_pixel(i, j, (255, 255, 0))
+            elif matrix[i][j] == 4:
+                sense.set_pixel(i, j, (0, 255, 0))
+            elif matrix[i][j] == 5:
+                sense.set_pixel(i, j, (0, 0, 255))
+            elif matrix[i][j] == 6:
+                sense.set_pixel(i, j, (0, 0, 100))
+
+def selectCharacter():
+    global matrix, snakeDirection, startButton
+
+    matrix = [
+        [0,0,0,0,0,0,0,0],
+        [0,0,0,0,0,0,0,0],
+        [0,0,0,0,0,0,0,0],
+        [0,0,0,0,0,0,0,0],
+        [0,0,0,0,0,0,0,0],
+        [0,0,0,0,0,0,0,0],
+        [0,0,0,0,0,0,0,0],
+        [0,0,0,0,0,0,0,0]
+    ]
+
+    selectedChar = 0
+    skip = False
+    snakeDirection = "middle"
+
+    while True:
+
+        if snakeDirection == "up":
+            if selectedChar != 0:
+                selectedChar -= 1
+                snakeDirection = "middle"
+        elif snakeDirection == "down":
+            if selectedChar != 25:
+                selectedChar += 1
+                snakeDirection = "middle"
+        elif snakeDirection == "left":
+            skip = True
+            break
+
+        juttu = 3 - selectedChar
+        if juttu < 0:
+            juttu = 0
+
+        juttu2 = selectedChar - 21
+        if juttu2 < 0:
+            juttu2 = 0
+
+        for c in range(0,8):
+            matrix[2][c] = 0
+
+        if selectedChar % 2 == 0:
+            for i in range(juttu,8-juttu2):
+                if i % 2 == 0:
+                    matrix[2][i] = 6
+                else:
+                    matrix[2][i] = 5
+        else:
+            for i in range(juttu,8-juttu2):
+                if i % 2 != 0:
+                    matrix[2][i] = 6
+                else:
+                    matrix[2][i] = 5
+
+        set_char(selectedChar,1)
+
+        if startButton:
+            for i in range(8):
+                if i % 2 == 0:
+                    set_char(selectedChar,3)
+                else:
+                    set_char(selectedChar,1)
+                displayMatrix2()
+                time.sleep(0.1)
+            time.sleep(2)
+            break
+
+        displayMatrix2()
+        time.sleep(0.2)
+    if skip == True:
+        return(None)
+    return(chr(selectedChar+97).upper())
 
 def randomApple():
     global matrix
@@ -34,7 +138,10 @@ def displayMatrix():
         for j in range(8):
             if matrix[i][j] == 1:
                 try:
-                    if snakeCoords.index((i,j)) % 2 != 0:
+                    if snakeCoords.index((i,j)) == 0:
+                        sense.set_pixel(i, j, (0,0,255))
+                        continue
+                    elif snakeCoords.index((i,j)) % 2 != 0:
                         sense.set_pixel(i, j, (39, 110, 7))
                         continue
                     sense.set_pixel(i, j, (0, 255, 0))
@@ -139,6 +246,8 @@ def mainFunc():
 
     while True:
 
+        sense.clear()
+
         while True:
             try:
                 if startButton:
@@ -182,8 +291,14 @@ def mainFunc():
                             sense.set_pixel(pixel[0], pixel[1], (0, 0, 255))
                     time.sleep(0.2)
 
-                sense.show_message(f"Score: {length-2}", text_colour=[0,0,255], scroll_speed=0.05)
-                save_highscore(length-2)
+                sense.show_message(f"S: {length-2}", text_colour=[0,0,255], scroll_speed=0.05)
+                startButton = False
+                isGameStarted = False
+                selectedCharacterInput = selectCharacter()
+                if selectedCharacterInput == None:
+                    break
+                else:
+                    save_highscore(selectedCharacterInput,length-2)
                 break
 
             waitTime = 0.5 * math.exp(-0.15 * (length - 2))
