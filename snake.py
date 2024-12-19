@@ -4,6 +4,20 @@ import time
 import math
 import threading
 
+def save_highscore(score):
+    try:
+        with open("highscore.txt", "r") as file:
+            highscore = int(file.read())
+    except:
+        highscore = 0
+
+    if score > highscore:
+        with open("highscore.txt", "w") as file:
+            file.write(str(score))
+    # Make a request to the webserver to save the highscore
+    # data = {"highscore": score}
+    # response = requests.post("http://
+
 def randomApple():
     global matrix
     
@@ -169,6 +183,7 @@ def mainFunc():
                     time.sleep(0.2)
 
                 sense.show_message(f"Score: {length-2}", text_colour=[0,0,255], scroll_speed=0.05)
+                save_highscore(length-2)
                 break
 
             waitTime = 0.5 * math.exp(-0.15 * (length - 2))
