@@ -13,7 +13,7 @@ dotenv.load_dotenv()
 
 def save_highscore(name,score):
     print(name, score)
-    requests.post("http://10.255.0.137:5000/save", json={"id": str(uuid.uuid4()),"name": name, "score": score, "deviceid": os.environ.get('SNAKE_DEVICEID')}, headers={"Authorization": os.environ.get('AUTH_KEY'), "Content-Type": "application/json"})
+    requests.post("http://10.255.0.31:5000/save", json={"id": str(uuid.uuid4()),"name": name, "score": score, "deviceid": os.environ.get('SNAKE_DEVICEID')}, headers={"Authorization": os.environ.get('AUTH_KEY'), "Content-Type": "application/json"})
 
 def set_char(chosenChar,selectedColor):
     global matrix
