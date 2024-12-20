@@ -1,15 +1,19 @@
+import os
 from sense_hat import SenseHat
 import random
 import time
 import math
 import threading
 import pyfiglet
+import dotenv
+import requests
+import uuid
+
+dotenv.load_dotenv()
 
 def save_highscore(name,score):
     print(name, score)
-    # 
-    # WIP Implement saving to server
-    #
+    requests.post("http://10.255.0.137:5000/save", json={"id": uuid.uuid4(),"name": name, "score": score, "deviceid": os.environ.get('SNAKE_DEVICEID')}, headers={"Authorization": os.environ.get('AUTH_KEY'), "Content-Type": "application/json"})
 
 def set_char(chosenChar,selectedColor):
     global matrix
