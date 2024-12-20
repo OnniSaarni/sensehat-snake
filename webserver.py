@@ -9,7 +9,7 @@ app = Flask(__name__)
 
 @app.route('/save', methods=['POST'])
 def save_data():
-    if request.headers.get('Authorization') == os.environ.get('AUTH_KEY'):
+    if request.headers.get('Authorization') != os.environ.get('AUTH_KEY'):
         return jsonify({"error": "Unauthorized"}), 401
     data = request.get_json()
     if not data:
