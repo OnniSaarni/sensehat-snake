@@ -1,2 +1,4 @@
 flask
 pyfiglet
+python-dotenv
+requests

@@ -1,10 +1,16 @@
 import os
+import os
 from sense_hat import SenseHat
 import random
 import time
 import math
 import threading
 import pyfiglet
+import dotenv
+import requests
+import uuid
+
+dotenv.load_dotenv()
 import dotenv
 import requests
 import uuid
